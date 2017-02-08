@@ -101,6 +101,37 @@ void display_poweroff (void) {
     delay(1000);
 }
 
+/* DISPLAY MEMORY UPDATE */
+/* display memory is organized as four pages of 128 bytes each. Each memory page
+ * corresponds to an 8-pixel-high column on the display. The LSB in display byte is the top most pixel, MSB is the bottom most pixel. (on one page).
+ * The first byte in page is the left most pixels on display, and last byte the right most
+ * so
+ * ---------------
+ *  is a page, where leftmost pixel - is the first byte, and the top most pixel in the first byte is the LSB
+ */
+void display_update(void) {
+    int ipage;
+    int icolumn;
+    uint8_t* pb;
+
+    pb = /*INSERT "THIS FUNCTION ASSUMES THAT THE DISPLAY BUFFER TO BE COPIED IS THE GLOBAL VAR HERE"*/ 
+
+    for(ipage = 0; ipage < 4; ipage++) {        //<4 because 4 is the max number of pages
+        //TODO find in basic io shield ref manual, in pseudo code for graphics display
+    }
+}
+
+/* WRITE DATA TO DISPLAY PANEL, "PUT BUFFER" */
+void display_putbuffer(int number_bytes, uint8_t* buffer_to_send) {
+    int i;
+    /*Write/read the data*/
+    for (i = 0; i < number_bytes; i++) {
+        spi2putbyte(*buffer_to-send);       //send first byte in buffer, this function also waits to receive next byte
+        buffer_to_send++;                   //increment pointer
+    }
+}
+
+
 /* SEND DATA TO THE DISPLAY */
 uint8_t spi2putbyte (uint8_t bytetowrite) {
     uint8_t bytetoread;
