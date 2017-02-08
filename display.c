@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <pic32mx.h>        //mcb32 environment
-#include "projectsnake.h"   //headers for this project
+#include "blobrunner.h"   //headers for this project
 
 
 /* The hardware and software initialization and the helping functions to them 
