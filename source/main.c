@@ -13,10 +13,19 @@ int main(void) {
     /*Initialize display*/
     display_hardware_init();
     display_controller_init();
+    display_clear();
+   
+    display_playing_field();
+    //enable_scrolling();
+/*
+    int i;
+    for (i = 0; i < 8; i++)
+	    field_page0[i] = 255;
+        */
+    
+    fill_pix(0,4);
 
-   // *display_buffer = *icon;
-
-    display_update();
-
+    display_playing_field();
     return 0;
 }
+

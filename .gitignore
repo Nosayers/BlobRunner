@@ -1,3 +1,9 @@
 *.o
 Thumbs.db
 iofiles/
+.deps/
+*.P
+is1200git/
+res/
+*.elf
+*.hex
