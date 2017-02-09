@@ -23,7 +23,8 @@ int main(void) {
 	    field_page0[i] = 255;
         */
     
-    fill_pix(0,4);
+    fill_pix(0,15);
+    fill_pix(3,14);
 
     display_playing_field();
     return 0;
