@@ -1,10 +1,6 @@
 /*  Function declarations for use in BlobRunner project
+ *  by Max Körlinge
  */
-
-/*  Delay assembly function from lab1
- *  delay.S
- */
-void delay(int);    //insert milliseconds
 
 /* Display related functions
  * display.c
@@ -21,9 +17,8 @@ void display_playing_field(void);
 void ready_page_for_input(int page);
 void display_clear(void);
 void enable_scrolling(void);
-
-
 void fill_pix(int pagenumber, int x); 
+
 
 /* Declarations for graphic data units, these are generally sent into the
  * display buffer
@@ -35,3 +30,19 @@ extern uint8_t field_page1[128];
 extern uint8_t field_page2[128];
 extern uint8_t field_page3[128];
 extern uint8_t* field_pages[4];
+
+/* Game logic functions
+ * gamelogic.c
+ */
+void scroll_playingfield();
+void generate_obstacles();
+void check_gameover();
+void set_difficulty();
+void move_player();
+void start_screen();
+void game_over();
+
+/*  Delay assembly function from lab1
+ *  delay.S
+ */
+void delay(int);    //insert milliseconds
