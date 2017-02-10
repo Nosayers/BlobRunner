@@ -201,6 +201,14 @@ void enable_scrolling (void) {
     spi2putbyte(0x2F);
 }
 
+/* Fill column
+ * fills column (127 = far right, 0 = far left) on a page
+ */
+void fill_col(int pagenumber, int column) {
+    uint8_t* page = field_pages[pagenumber];
+    page[column] = 255;
+}
+
 /* Fill a rectangle on the specified page spec column
  * max column = 15 (right edge of screen) 
  */

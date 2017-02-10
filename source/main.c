@@ -5,10 +5,15 @@
 
 int main(void) { 
 
+    //are these necessery? it works without so far
+    /*
     OSCCONCLR = 0x100000;
     OSCCONSET = 0x080000;
     AD1PCFG = 0xFFFF;
     ODCE = 0x0;
+    */
+
+    clock_init();
 
     /*Initialize display*/
     display_hardware_init();
@@ -16,17 +21,20 @@ int main(void) {
     display_clear();
    
     display_playing_field();
-    //enable_scrolling();
-/*
-    int i;
-    for (i = 0; i < 8; i++)
-	    field_page0[i] = 255;
-        */
-    
-    fill_pix(0,15);
-    fill_pix(3,14);
 
-    display_playing_field();
+    int c = 0;
+    //main loop
+    while (1) {
+        if (c == 5 | c == 6000) 
+           send_block(1);
+            
+        clock_check();
+        display_playing_field();
+
+        c++;
+    }
+
+    //enable_scrolling();
     return 0;
 }
 

@@ -18,7 +18,7 @@ void ready_page_for_input(int page);
 void display_clear(void);
 void enable_scrolling(void);
 void fill_pix(int pagenumber, int x); 
-
+void fill_col(int pagenumber, int column);
 
 /* Declarations for graphic data units, these are generally sent into the
  * display buffer
@@ -34,6 +34,12 @@ extern uint8_t* field_pages[4];
 /* Game logic functions
  * gamelogic.c
  */
+void clock_init();
+void clock_check();
+void game_clock_tick();
+void send_block(int lane);
+void write_blob();
+void page_scroll(int pagenr);
 void scroll_playingfield();
 void generate_obstacles();
 void check_gameover();
@@ -41,6 +47,8 @@ void set_difficulty();
 void move_player();
 void start_screen();
 void game_over();
+
+//extern int* BLOCKS_COUNTERS[4]; 
 
 /*  Delay assembly function from lab1
  *  delay.S
