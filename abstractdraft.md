@@ -51,5 +51,6 @@ Iteration 5:
 ## Verification
 Somehow test so that the blob-hits-obstacle event always occurs correctly when you hit something and not when you do not. Perhaps make a test course and test every way to hit an obstacle?
 
-
+## Contributions
+The project is being done solo. 
 

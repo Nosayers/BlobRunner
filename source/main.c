@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include "blobrunner.h"
 
-
 int main(void) { 
 
     //are these necessery? it works without so far
@@ -20,18 +19,14 @@ int main(void) {
     display_controller_init();
     display_clear();
    
-    display_playing_field();
+    //display_playing_field();
 
-    int c = 0;
     //main loop
     while (1) {
-        if (c == 5 | c == 6000) 
-           send_block(1);
             
         clock_check();
         display_playing_field();
 
-        c++;
     }
 
     //enable_scrolling();

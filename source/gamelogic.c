@@ -19,14 +19,42 @@ int* BLOCKS_COUNTERS[4] = {
                             };
 int BLOCKS_SENDING[4] = {0, 0, 0, 0};   //boolean for if this block is sending
 
-/* NOTE
- * det är något fel med pekarna här inne
- * den skickar fill_col, men den verkar inte ha koll på hur många som kallats
- * och fyller inte en hel ruta.
- * problem kan ligga i gameclocktick också
+int level_one_counter = 0;
+void level_one(void) {
+
+    switch (level_one_counter) {
+        case 0:
+            send_block(1);
+            break;
+        case 15:
+            send_block(0);
+            break;
+        case 19:
+            send_block(3);
+            break;
+        case 35:
+            send_block(2);
+            break;
+        case 47:
+            send_block(3);
+            break;
+    }
+
+    level_one_counter++;
+
+    if (level_one_counter > 58) {
+        level_one_counter = 0;
+    }
+}
+
+/* Start and handle the sending of a block
+ * Related globals: BLOCK_COUNT_LANE#
+ * Keeps sending one column of the block each game tick until the block
+ * is complete
+ * If any block should be sent is also checked in game_clock_tick()
  */
 void send_block(int lane) {
-    int* block_counter = BLOCKS_COUNTERS[lane];
+    int *block_counter = BLOCKS_COUNTERS[lane];
 
     if (*block_counter == -1) {
         BLOCKS_SENDING[lane] = 1;
@@ -34,7 +62,7 @@ void send_block(int lane) {
     }
 
     fill_col(lane, 127);
-    *block_counter++;
+    *block_counter += 1;
     
     if (*block_counter > 7) {
         *block_counter = -1;
@@ -46,10 +74,12 @@ void send_block(int lane) {
  */
 void game_clock_tick() {
     scroll_playingfield();
+    level_one();
 
     int k;
-    for (k = 0; k > 4; k++) {
-        if (BLOCKS_SENDING[k] == 1) {
+    for (k = 0; k < 4; k++) {
+        int* block_counter = BLOCKS_COUNTERS[k];
+        if (*block_counter != -1) {
             send_block(k);
         }
     }

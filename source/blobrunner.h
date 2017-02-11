@@ -47,6 +47,7 @@ void set_difficulty();
 void move_player();
 void start_screen();
 void game_over();
+void level_one();
 
 //extern int* BLOCKS_COUNTERS[4]; 
 
