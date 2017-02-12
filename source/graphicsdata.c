@@ -9,6 +9,10 @@
 #include <stdint.h>  //needed to understand uint8 
 #include "blobrunner.h" 
 
+uint8_t blob[] = {
+    24, 60, 126, 126, 60, 24,
+};
+
 uint8_t* field_pages[4] = {
     field_page0, field_page1,
     field_page2, field_page3,

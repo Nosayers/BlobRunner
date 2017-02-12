@@ -5,6 +5,13 @@
 	.align 2
 	.text
 
+# As per instruction, should enable interrupts globally 
+.global enable_interrupts
+enable_interrupts:
+    ei
+    jr  $ra
+    nop
+
 .global delay
 delay:
 	li $t5, 0xaa67	#CONSTANT:  used in for loop to get the delay. It was requested easy to change, so put at top

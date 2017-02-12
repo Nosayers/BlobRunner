@@ -17,33 +17,32 @@ int* BLOCKS_COUNTERS[4] = {
                             &BLOCK_COUNT_LANE0, &BLOCK_COUNT_LANE1,
                             &BLOCK_COUNT_LANE2, &BLOCK_COUNT_LANE3,
                             };
-int BLOCKS_SENDING[4] = {0, 0, 0, 0};   //boolean for if this block is sending
+int BLOB_LANE = 0; //current player position (which lane is it in)
 
-int level_one_counter = 0;
-void level_one(void) {
+void move_player(int dir) {
+    BLOB_LANE += dir; //if dir +1 moves player down, if dir -1 moves player up
 
-    switch (level_one_counter) {
-        case 0:
-            send_block(1);
-            break;
-        case 15:
-            send_block(0);
-            break;
-        case 19:
-            send_block(3);
-            break;
-        case 35:
-            send_block(2);
-            break;
-        case 47:
-            send_block(3);
-            break;
-    }
+    if ((BLOB_LANE < 0) || (BLOB_LANE > 3)) //if were going out of bounds, go back
+        BLOB_LANE -= dir;
 
-    level_one_counter++;
+    //return;
+    //input from btns to move player UP or DOWN
+    //this should be done as an INTERRUPT, so you can move player
+    //even in between game "ticks"
 
-    if (level_one_counter > 58) {
-        level_one_counter = 0;
+    //must write the player blob on the correct spot on the display
+    
+    //must check if doing so hits an obstacle, in that case, game over
+}
+
+/* Write blob should write blob in proper place, while everything else scrolls
+ * Could also check if blob hits something and its gameover
+ */
+void write_blob() {
+    uint8_t* lane = field_pages[BLOB_LANE];
+    int i;
+    for (i = 0; i < 6; i++) {
+        lane[24+i] = blob[i];
     }
 }
 
@@ -57,7 +56,6 @@ void send_block(int lane) {
     int *block_counter = BLOCKS_COUNTERS[lane];
 
     if (*block_counter == -1) {
-        BLOCKS_SENDING[lane] = 1;
         *block_counter = 0;
     }
 
@@ -66,7 +64,6 @@ void send_block(int lane) {
     
     if (*block_counter > 7) {
         *block_counter = -1;
-        BLOCKS_SENDING[lane] = 0;
     }
 }
 
@@ -74,6 +71,7 @@ void send_block(int lane) {
  */
 void game_clock_tick() {
     scroll_playingfield();
+    //current level being played
     level_one();
 
     int k;
@@ -87,6 +85,8 @@ void game_clock_tick() {
 
 /* Check if game should tick forward
  * called repeatedly in main loop
+ * If TIMEOUTCOUNT hits GAME_SPEED, it ticks
+ * Both are global vars
  */
 void clock_check() {
     volatile int timeoutFlag;
@@ -104,11 +104,6 @@ void clock_check() {
     }
 }
 
-/* Write blob should write blob in proper place, while everything else scrolls
- * Could also check if blob hits something and its gameover
- */
-void write_blob() {};
-
 /* scrolls everything in the field one step to the left 
  * (except the player blob which stays in the middle)
  */
@@ -117,27 +112,26 @@ void scroll_playingfield() {
     page_scroll(1);
     page_scroll(2);
     page_scroll(3);
-    //make this be based on a normal timer with timer flag = scroll
 }
 
 /* Helper function for scroll_playingfield()
  */
 void page_scroll(int pagenr) {
     //scrolls everything in the field one step to the left (except the player blob which stays in the middle)
-    uint8_t pagecp[128]; 
+    uint8_t pagecopy[128]; 
     uint8_t* realpage = field_pages[pagenr];
 
     int cnt;
     int i = 0;
     for (cnt = 1; cnt < 128; cnt++) {
-        pagecp[i] = realpage[cnt];
+        pagecopy[i] = realpage[cnt];
         i++;
     }
-    pagecp[i] = 0;
+    pagecopy[i] = 0;
 
     //copy new page
     for (cnt = 0; cnt < 128; cnt++) {
-        realpage[cnt] = pagecp[cnt];
+        realpage[cnt] = pagecopy[cnt];
     }
 }
 
@@ -161,17 +155,6 @@ void set_difficulty() {
 
     //difficulty could be the speed of the game, or how often the obstacles are generated - probably best to do speed
     
-}
-
-void move_player() {
-
-    //input from btns to move player UP or DOWN
-    //this should be done as an INTERRUPT, so you can move player
-    //even in between game "ticks"
-
-    //must write the player blob on the correct spot on the display
-    
-    //must check if doing so hits an obstacle, in that case, game over
 }
 
 void start_screen() {

@@ -30,6 +30,7 @@ extern uint8_t field_page1[128];
 extern uint8_t field_page2[128];
 extern uint8_t field_page3[128];
 extern uint8_t* field_pages[4];
+extern uint8_t blob[6];
 
 /* Game logic functions
  * gamelogic.c
@@ -47,11 +48,20 @@ void set_difficulty();
 void move_player();
 void start_screen();
 void game_over();
+
+/* Button I/O setup and interrupt handler 
+ * buttons_handler.c
+ */
+void buttons_init(void);
+void button_interrupt(void);
+
+/* Levels
+ * levels.c
+ */
 void level_one();
 
-//extern int* BLOCKS_COUNTERS[4]; 
-
-/*  Delay assembly function from lab1
- *  delay.S
+/*  Helper assembly functions
+ *  assembler.S
  */
 void delay(int);    //insert milliseconds
+void enable_interrupts(void);
