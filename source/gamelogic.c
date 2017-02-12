@@ -1,4 +1,4 @@
-#include <stdint.h> //needed?
+#include <stdint.h>
 #include <pic32mx.h> 
 #include "blobrunner.h"
 
@@ -7,7 +7,7 @@
  */
 
 /* GLOBALS */
-int GAME_SPEED = 1;     // speed 10 means game ticks once every second
+int GAME_SPEED = 10;     // speed 10 means game ticks once every 0.1s. Speed 2 will be challenging, 1 will be very hard
 int TIMEOUTCOUNT = 0;   // for clock_check
 int BLOCK_COUNT_LANE0 = -1; //for send_block, to keep track of block sending
 int BLOCK_COUNT_LANE1 = -1;
@@ -19,19 +19,31 @@ int* BLOCKS_COUNTERS[4] = {
                             };
 int BLOB_LANE = 0; //current player position (which lane is it in)
 
+void game_over() {
+
+    //display something on game over
+
+    while(1);
+    //optional: save highscores, display highscores
+}
+
+/* Move player moves the blob up or down in lanes. It is called from
+ * button_interrupt in buttons_handler.c when a button is pressed.
+ * Button 2: move player up
+ * Button 3: move player down
+ */
 void move_player(int dir) {
-    BLOB_LANE += dir; //if dir +1 moves player down, if dir -1 moves player up
-
-    if ((BLOB_LANE < 0) || (BLOB_LANE > 3)) //if were going out of bounds, go back
-        BLOB_LANE -= dir;
-
-    //return;
     //input from btns to move player UP or DOWN
-    //this should be done as an INTERRUPT, so you can move player
     //even in between game "ticks"
+    remove_blob(); //otherwise our old blob position stays in graphic
 
-    //must write the player blob on the correct spot on the display
-    
+    BLOB_LANE += dir; //if dir +1 moves player down, if dir -1 moves player up
+    if ((BLOB_LANE < 0) || (BLOB_LANE > 3)) { //if were going out of bounds, go back
+        BLOB_LANE -= dir;
+    }
+
+    write_blob();
+         
     //must check if doing so hits an obstacle, in that case, game over
 }
 
@@ -42,11 +54,26 @@ void write_blob() {
     uint8_t* lane = field_pages[BLOB_LANE];
     int i;
     for (i = 0; i < 6; i++) {
-        lane[24+i] = blob[i];
+        if (lane[24+i] != 0) {
+            game_over();
+        }
+        lane[24+i] = blob[i]; //fill the columns with the blob data
     }
 }
 
-/* Start and handle the sending of a block
+/* Remove blob removes blob from where it is/was. Used when moving the
+ * blob and also in main game loop to avoid trailing graphics from old blobs
+ */
+void remove_blob() {
+
+    uint8_t* lane = field_pages[BLOB_LANE];
+    int i;
+    for (i = 0; i < 6; i++) {
+        lane[24+i] = 0; //set old blob pixel to 0
+    }
+}
+
+/* Start and handle the sending of a block obstacle
  * Related globals: BLOCK_COUNT_LANE#
  * Keeps sending one column of the block each game tick until the block
  * is complete
@@ -145,42 +172,29 @@ void generate_obstacles() {
     //preferably different kinds of obstacles (start with just filling squares)
 }
 
-void check_gameover() {
-    //check if player blob has hit an obstacle
-
-    //probably done by reading whats in the field_page at that spot before moving there, and if theres a conflic, you lose
-}
-
-void set_difficulty() {
-
-    //difficulty could be the speed of the game, or how often the obstacles are generated - probably best to do speed
-    
-}
-
 void start_screen() {
 
     //display something on startup
 
 }
 
-void game_over() {
-
-    //display something on game over
-
-    //optional: save highscores, display highscores
-}
-
 //just do this in main instead?
 void clock_init() {
     //set bit 15 to enable, bit 6-5-4 (prescaling) to 111(1:256)
     T2CON = 0x00008070;
-    //set period to 31250, makes it timeout once every 0.1s (100ms)
-    PR2 = 31250;
+    //set period to 3125, makes it timeout once every 0.01s (100ms)
+    PR2 = 3125;
 }
 
 /* Speed set to higher number means slower speed
  * actual speed is (in real time) speed * 0.1(s)
+ * If you pass a negative number, you instead set speed faster relative
+ * to current speed.
  */
 void set_speed(int speed) {
-    GAME_SPEED = speed;
+    if (speed < 0) {
+        GAME_SPEED += speed;
+    } else {
+        GAME_SPEED = speed;
+    }
 }

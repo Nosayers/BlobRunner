@@ -2,15 +2,13 @@
 #include <pic32mx.h>
 #include "blobrunner.h"
 
-/* Interrupt Service Routine */
+/* Interrupt routine, when a button interrupt happens this is called */
 /* Egen notis: Denna deklareras i assembler i vectors.S. Där finns själva
    interrupthandlern, som ser till att spara alla register, och den kallar
    på denna funktion i sin tur, sedan återställer den alla register */
-void button_interrupt(void)
-{
+void button_interrupt(void) {
     //read buttons and move player up or down
     volatile int p = ((PORTD >> 5) & 0x7);
-
     switch (p) {
         case 1:
             move_player(1);
@@ -18,17 +16,19 @@ void button_interrupt(void)
         case 2:
             move_player(-1);
             break;
+        case 4: //increase speed with button 4. temporary dev thing
+            set_speed(-1);
         default:
             break;
     }
-
     IFSCLR(1) = 0x1; //clear flag
-
     return;
 }
 
-void buttons_init(void) {
-
+/* Set ports and stuff to get the buttons working with interrupts
+ * Comments are straight out of the manual.
+ */
+void button_init(void) {
     /* Change notice (CN) pins provide PIC32 abivlity to generate interrupts to processor in response
      * to the change of state on selected input pins (corresopnding TRISxbits must be 1).
      * Enabled pin values are compared with values sampled during the last read operation of the designated PORTx reg.
@@ -52,6 +52,5 @@ void buttons_init(void) {
      *   9. Enable CN interrupt enable bit, by setting CNIE bit (IEC1<0>) = 1
      */ IECSET(1) = 0x1; /*
      *   10. Enable CPU interrupts (noteself: use assembly stuff from lab3)
-     */
-    enable_interrupts();
+     */ enable_interrupts();
 }

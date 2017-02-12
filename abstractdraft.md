@@ -54,3 +54,11 @@ Somehow test so that the blob-hits-obstacle event always occurs correctly when y
 ## Contributions
 The project is being done solo. 
 
+
+## NOTES
+
+Main problem so far was setting up all the hardware. Just to print something that made sense to me how it worked took days.
+Didnt want to use the script from github to convert images because I didnt understand it. Went with a display that "floods" instead, where I divided my graphics data
+into whichever page it is supposed to write to.
+
+Design choice to have game updating constantly by loop, and the blob moved by interrupt. Chose this to make moving the blob as responsive as possible.

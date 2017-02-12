@@ -20,17 +20,16 @@ int main(void) {
     display_controller_init();
     display_clear();
 
-    /*Setup Buttons I/O and the interrupts */
+    /*Setup Buttons I/O and the interrupts
+     * connected to them*/
     buttons_init();
    
-    //display_playing_field();
     //main loop
     while (1) {
-        write_blob();
-        clock_check();
-        //write_blob()  should write blob in its place in its lane,
-        //and check if its being written on an object and if so should fail
-        display_playing_field();
+        remove_blob(); //otherwise our blob sends a trail after it
+        clock_check(); //check if game should tick forward or not
+        write_blob();  //write blob to screen
+        display_playing_field(); //update field
     }
 
     //enable_scrolling();

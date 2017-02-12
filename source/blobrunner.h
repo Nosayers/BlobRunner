@@ -40,11 +40,10 @@ void clock_check();
 void game_clock_tick();
 void send_block(int lane);
 void write_blob();
+void remove_blob();
 void page_scroll(int pagenr);
 void scroll_playingfield();
 void generate_obstacles();
-void check_gameover();
-void set_difficulty();
 void move_player();
 void start_screen();
 void game_over();
@@ -52,7 +51,7 @@ void game_over();
 /* Button I/O setup and interrupt handler 
  * buttons_handler.c
  */
-void buttons_init(void);
+void button_init(void);
 void button_interrupt(void);
 
 /* Levels
