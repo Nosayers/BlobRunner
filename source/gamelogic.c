@@ -23,7 +23,7 @@ void game_over() {
 
     //display something on game over
 
-    while(1);
+    while(1); //placeholder
     //optional: save highscores, display highscores
 }
 
@@ -33,28 +33,25 @@ void game_over() {
  * Button 3: move player down
  */
 void move_player(int dir) {
-    //input from btns to move player UP or DOWN
-    //even in between game "ticks"
     remove_blob(); //otherwise our old blob position stays in graphic
-
     BLOB_LANE += dir; //if dir +1 moves player down, if dir -1 moves player up
+
     if ((BLOB_LANE < 0) || (BLOB_LANE > 3)) { //if were going out of bounds, go back
         BLOB_LANE -= dir;
     }
-
     write_blob();
-         
-    //must check if doing so hits an obstacle, in that case, game over
 }
 
 /* Write blob should write blob in proper place, while everything else scrolls
- * Could also check if blob hits something and its gameover
+ * Checks when writing blob if theres already something other than 0 there,
+ * if so, its game over.
  */
 void write_blob() {
+
     uint8_t* lane = field_pages[BLOB_LANE];
     int i;
     for (i = 0; i < 6; i++) {
-        if (lane[24+i] != 0) {
+        if (lane[24+i] != 0) { //game over if hit obstacle
             game_over();
         }
         lane[24+i] = blob[i]; //fill the columns with the blob data
@@ -80,6 +77,7 @@ void remove_blob() {
  * If any block should be sent is also checked in game_clock_tick()
  */
 void send_block(int lane) {
+
     int *block_counter = BLOCKS_COUNTERS[lane];
 
     if (*block_counter == -1) {
@@ -97,10 +95,12 @@ void send_block(int lane) {
 /* This happens when game ticks
  */
 void game_clock_tick() {
+
     scroll_playingfield();
     //current level being played
     level_one();
 
+    //check if blocks are being sent
     int k;
     for (k = 0; k < 4; k++) {
         int* block_counter = BLOCKS_COUNTERS[k];
@@ -116,6 +116,7 @@ void game_clock_tick() {
  * Both are global vars
  */
 void clock_check() {
+
     volatile int timeoutFlag;
     timeoutFlag = (IFS(0) & 0x00000100) >> 8; //fetch 8th bit in IFS0
 
@@ -142,9 +143,9 @@ void scroll_playingfield() {
 }
 
 /* Helper function for scroll_playingfield()
+ * scrolls everything in a page one column to the left
  */
 void page_scroll(int pagenr) {
-    //scrolls everything in the field one step to the left (except the player blob which stays in the middle)
     uint8_t pagecopy[128]; 
     uint8_t* realpage = field_pages[pagenr];
 
@@ -154,7 +155,7 @@ void page_scroll(int pagenr) {
         pagecopy[i] = realpage[cnt];
         i++;
     }
-    pagecopy[i] = 0;
+    pagecopy[i] = 0;    //add new empty column at far right
 
     //copy new page
     for (cnt = 0; cnt < 128; cnt++) {
@@ -187,7 +188,7 @@ void clock_init() {
 }
 
 /* Speed set to higher number means slower speed
- * actual speed is (in real time) speed * 0.1(s)
+ * actual speed is (in real time) speed * 0.01(s)
  * If you pass a negative number, you instead set speed faster relative
  * to current speed.
  */

@@ -22,7 +22,7 @@ int main(void) {
 
     /*Setup Buttons I/O and the interrupts
      * connected to them*/
-    buttons_init();
+    button_init();
    
     //main loop
     while (1) {
