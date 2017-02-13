@@ -43,10 +43,11 @@ void write_blob();
 void remove_blob();
 void page_scroll(int pagenr);
 void scroll_playingfield();
-void generate_obstacles();
+//void generate_obstacles();
 void move_player();
 void start_screen();
 void game_over();
+void set_speed(int speed);
 
 /* Button I/O setup and interrupt handler 
  * buttons_handler.c

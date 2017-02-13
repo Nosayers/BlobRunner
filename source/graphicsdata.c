@@ -9,6 +9,8 @@
 #include <stdint.h>  //needed to understand uint8 
 #include "blobrunner.h" 
 
+void *stdin, *stdout, *stderr;
+
 uint8_t blob[] = {
     24, 60, 126, 126, 60, 24,
 };

@@ -2,8 +2,14 @@
 #include <stdint.h>
 #include "blobrunner.h"
 
-int main(void) { 
+/* KNOWN ISSUES:
+ * The microcontrollers push buttons sometimes double click unintentionally,
+ * screwing us.
+ */
 
+void *stdin, *stdout, *stderr;  //needed to workaround a mcb32 env bug with using stdlib
+
+int main(void) { 
     //are these necessery? it works without so far
     /*
     OSCCONCLR = 0x100000;
@@ -35,4 +41,3 @@ int main(void) {
     //enable_scrolling();
     return 0;
 }
-

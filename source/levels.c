@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "blobrunner.h"
 
+void *stdin, *stdout, *stderr;
 
 /* Level one design (v0.1)
  */

@@ -2,28 +2,7 @@
 #include <pic32mx.h>
 #include "blobrunner.h"
 
-/* Interrupt routine, when a button interrupt happens this is called */
-/* Egen notis: Denna deklareras i assembler i vectors.S. Där finns själva
-   interrupthandlern, som ser till att spara alla register, och den kallar
-   på denna funktion i sin tur, sedan återställer den alla register */
-void button_interrupt(void) {
-    //read buttons and move player up or down
-    volatile int p = ((PORTD >> 5) & 0x7);
-    switch (p) {
-        case 1:
-            move_player(1);
-            break;
-        case 2:
-            move_player(-1);
-            break;
-        case 4: //increase speed with button 4. temporary dev thing
-            set_speed(-1);
-        default:
-            break;
-    }
-    IFSCLR(1) = 0x1; //clear flag
-    return;
-}
+void *stdin, *stdout, *stderr;
 
 /* Set ports and stuff to get the buttons working with interrupts
  * Comments are straight out of the manual.

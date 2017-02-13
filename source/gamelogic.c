@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h> //needed for rand
 #include <pic32mx.h> 
 #include "blobrunner.h"
 
@@ -18,6 +19,75 @@ int* BLOCKS_COUNTERS[4] = {
                             &BLOCK_COUNT_LANE2, &BLOCK_COUNT_LANE3,
                             };
 int BLOB_LANE = 0; //current player position (which lane is it in)
+int RAND_INITIALIZED = 0; //is rand seeded?
+
+/* TODO : fix so it doesnt random blocks too close, and also
+ * make a counter so that it atleast generates a block sometimes
+ */
+void generate_obstacles() {
+
+    if (RAND_INITIALIZED) {
+        volatile int randnr = rand() % 301; 
+
+        //not pretty, but we use fallthrough to get the ranges 0-3,4-7, and so on..
+        switch (randnr) {
+            case 0:
+            case 1:
+            case 2:
+                send_block(0);
+                break;
+            case 3:
+            case 4:
+            case 5:
+                send_block(1);
+                break;
+            case 6:
+            case 7:
+            case 8:
+                send_block(2);
+                break;
+            case 9:
+            case 10:
+            case 11:
+                send_block(3);
+                break;
+            default:
+                break;
+        }
+    }
+    //preferably different kinds of obstacles (start with just filling squares)
+}
+
+
+/* Interrupt routine, when a button interrupt happens this is called */
+/* Egen notis: Denna deklareras i assembler i vectors.S. Där finns själva
+   interrupthandlern, som ser till att spara alla register, och den kallar
+   på denna funktion i sin tur, sedan återställer den alla register */
+void button_interrupt(void) {
+
+    if (RAND_INITIALIZED == 0) {
+        volatile unsigned int r = TMR2; //use current value when first button pressed as seed for random 
+        srand(r);
+        RAND_INITIALIZED = 1;
+    }
+
+    //read buttons and move player up or down
+    volatile int p = ((PORTD >> 5) & 0x7);
+    switch (p) {
+        case 1:
+            move_player(1);
+            break;
+        case 2:
+            move_player(-1);
+            break;
+        case 4: //increase speed with button 4. temporary dev thing
+            set_speed(-1);
+        default:
+            break;
+    }
+    IFSCLR(1) = 0x1; //clear flag
+    return;
+}
 
 void game_over() {
 
@@ -98,9 +168,9 @@ void game_clock_tick() {
 
     scroll_playingfield();
     //current level being played
-    level_one();
+    //level_one();
 
-    //check if blocks are being sent
+    //check if blocks are being sent, if so, keep sending
     int k;
     for (k = 0; k < 4; k++) {
         int* block_counter = BLOCKS_COUNTERS[k];
@@ -108,6 +178,8 @@ void game_clock_tick() {
             send_block(k);
         }
     }
+    
+    generate_obstacles(); //random generation
 }
 
 /* Check if game should tick forward
@@ -163,15 +235,6 @@ void page_scroll(int pagenr) {
     }
 }
 
-
-void generate_obstacles() {
-
-    //generates obstacles in the 4 different lanes
-
-    //preferably somehow randomly
-
-    //preferably different kinds of obstacles (start with just filling squares)
-}
 
 void start_screen() {
 

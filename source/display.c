@@ -2,11 +2,12 @@
 #include <pic32mx.h>        //mcb32 environment
 #include "blobrunner.h"   //headers for this project
 
+void *stdin, *stdout, *stderr;
+
 /* display.c
  * 
  * Functions that deal with initializing the hardware and software to control the OLED display on the microcontroller.
  * Also the most basic functions that make writing to the graphics buffer possible.
-
  * The hardware and software initialization and the helping functions to them 
  * were written based on the pseudo code outlined in the chipkit basic io shield
  * reference manual found at

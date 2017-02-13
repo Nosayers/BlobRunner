@@ -4,6 +4,8 @@
 
  * For copyright and licensing, see file COPYING */
 
+void *stdin, *stdout, *stderr;
+
 /* Non-Maskable Interrupt; something bad likely happened, so hang */
 void _nmi_handler() {
 	for(;;);
