@@ -24,9 +24,14 @@ int RAND_INITIALIZED = 0; //is rand seeded?
 /* TODO : fix so it doesnt random blocks too close, and also
  * make a counter so that it atleast generates a block sometimes
  */
+int PROXIMITY_COUNTER = 0;
+int NEW_BLOCK_MINIMUM = 0;
 void generate_obstacles() {
 
-    if (RAND_INITIALIZED) {
+    if (RAND_INITIALIZED && (NEW_BLOCK_MINIMUM > 14)) {
+        send_block((rand() % 4));
+    }
+    else if (RAND_INITIALIZED && !(PROXIMITY_COUNTER)) { //om prox cnt = 0 och rand init = 1..
         volatile int randnr = rand() % 301; 
 
         //not pretty, but we use fallthrough to get the ranges 0-3,4-7, and so on..
@@ -34,21 +39,25 @@ void generate_obstacles() {
             case 0:
             case 1:
             case 2:
+                PROXIMITY_COUNTER = 1;
                 send_block(0);
                 break;
             case 3:
             case 4:
             case 5:
+                PROXIMITY_COUNTER = 1;
                 send_block(1);
                 break;
             case 6:
             case 7:
             case 8:
+                PROXIMITY_COUNTER = 1;
                 send_block(2);
                 break;
             case 9:
             case 10:
             case 11:
+                PROXIMITY_COUNTER = 1;
                 send_block(3);
                 break;
             default:
@@ -156,6 +165,7 @@ void send_block(int lane) {
 
     fill_col(lane, 127);
     *block_counter += 1;
+    NEW_BLOCK_MINIMUM = 0;
     
     if (*block_counter > 7) {
         *block_counter = -1;
@@ -177,6 +187,16 @@ void game_clock_tick() {
         if (*block_counter != -1) {
             send_block(k);
         }
+    }
+
+    //increase this each tick to guarantee a certain rate of blocks
+    NEW_BLOCK_MINIMUM++;
+
+    //avoiding blocks too close together
+    if (PROXIMITY_COUNTER > 0) {
+        PROXIMITY_COUNTER ++;
+        if (PROXIMITY_COUNTER > 4)
+            PROXIMITY_COUNTER = 0;
     }
     
     generate_obstacles(); //random generation
