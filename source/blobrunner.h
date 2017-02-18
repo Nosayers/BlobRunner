@@ -2,6 +2,13 @@
  *  by Max Körlinge
  */
 
+/* Initializing hardware (thats not Display related, see below)
+ * and main function with main game loop
+ * main.c
+ */
+void clock_init(void);
+void button_init(void);
+
 /* Display related functions
  * display.c
  */
@@ -20,6 +27,29 @@ void enable_scrolling(void);
 void fill_pix(int pagenumber, int x); 
 void fill_col(int pagenumber, int column);
 
+/* Game logic functions
+ * gamelogic.c
+ */
+void clock_check(void);
+void game_clock_tick(void);
+void send_block(int lane);
+void write_blob(void);
+void remove_blob(void);
+void page_scroll(int pagenr);
+void scroll_playingfield(void);
+void generate_obstacles(void);
+void move_player(int dir);
+void start_screen(void);
+void game_over(void);
+void set_speed(int speed);
+void button_interrupt(void);
+
+/*  Helper assembly functions
+ *  assembler.S
+ */
+void delay(int);    //insert milliseconds
+void enable_interrupts(void);
+
 /* Declarations for graphic data units, these are generally sent into the
  * display buffer
  * graphicsdata.c
@@ -32,36 +62,7 @@ extern uint8_t field_page3[128];
 extern uint8_t* field_pages[4];
 extern uint8_t blob[6];
 
-/* Game logic functions
- * gamelogic.c
- */
-void clock_init();
-void clock_check();
-void game_clock_tick();
-void send_block(int lane);
-void write_blob();
-void remove_blob();
-void page_scroll(int pagenr);
-void scroll_playingfield();
-//void generate_obstacles();
-void move_player();
-void start_screen();
-void game_over();
-void set_speed(int speed);
-
-/* Button I/O setup and interrupt handler 
- * buttons_handler.c
- */
-void button_init(void);
-void button_interrupt(void);
-
 /* Levels
  * levels.c
  */
-void level_one();
-
-/*  Helper assembly functions
- *  assembler.S
- */
-void delay(int);    //insert milliseconds
-void enable_interrupts(void);
+void level_one(void);

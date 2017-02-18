@@ -98,7 +98,7 @@ void display_poweroff (void) {
     PORTFSET = 0x0020;
     delay(1000);
 
-    // pwoer off VDD
+    // power off VDD
     PORTFSET = 0x0040; 
     delay(1000);
 }
@@ -185,10 +185,10 @@ uint8_t spi2putbyte (uint8_t bytetowrite) {
     return bytetoread;
 }
 
+/* NOT CURRENTLY USED. CHOSE OTHER WAY OF SCROLLING FIELD */
 /* ENABLE HORIZONTAL SCROLLING
  * (send 2E to deactivate. must be deactivated before activating)
  * might not want to use it for this project (use other way for game flow)
- * DELETE?
  * Followed example in SSD1306 controller manual
  */
 void enable_scrolling (void) {
@@ -210,6 +210,7 @@ void fill_col(int pagenumber, int column) {
     page[column] = 255;
 }
 
+// NOT CURRENTLY USED
 /* Fill a rectangle on the specified page spec column
  * max column = 15 (right edge of screen) 
  */
@@ -220,4 +221,3 @@ void fill_pix(int pagenumber, int column) {
         page[cnt] = 255;
 }
 
-// Kolla https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf 9 Command Table för "Scrolling command table", hur man får displayen att scrolla sidleds??+
