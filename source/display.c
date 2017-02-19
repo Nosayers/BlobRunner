@@ -135,18 +135,54 @@ void display_gameover(void) {
     int ipage;
     int icolumn;
 
-    for (ipage = 0; ipage < 4; ipage++) {
-        PORTFCLR = 0x10;
-        spi2putbyte(0x22);      //setpage
-        spi2putbyte(ipage);
-        spi2putbyte(0x0);       //set lowest nib
-        spi2putbyte(0x10);      //set highest nib
-        PORTFSET = 0x10;        //data mode
-    	
-        display_putbuffer(128, clear); //send one page of 0s to buffer
-        delay(300);
+    int i;
+    for (i = 0; i < 128; i++) {
+        field_page0[127] = 0;
+        field_page1[127] = 0;
+        field_page2[127] = 0;
+        field_page3[127] = 0;
+        scroll_playingfield();
+        display_playing_field();
+        delay(5);
     }
-} 
+
+    int k;
+    for (i = 0; i < 128; i++) {
+        switch (i) {
+            case 24:
+                for (k = 0; k < 8; k++) {
+                    field_page0[i+k] = hunter_font[39][k];
+                }
+                i += 8;
+                break;
+            case 34:
+                for (k = 0; k < 8; k++) {
+                    field_page0[i+k] = hunter_font[33][k];
+                }
+                i += 8;
+                break;
+
+            case 44:
+                for (k = 0; k < 8; k++) {
+                    field_page0[i+k] = hunter_font[45][k];
+                }
+                i += 8;
+                break;
+
+            case 54:
+                for (k = 0; k < 8; k++) {
+                    field_page0[i+k] = hunter_font[37][k];
+                }
+                i += 8;
+                break;
+            
+            default:
+                field_page0[i] = 0;
+                break;
+        }
+    } 
+    display_playing_field();
+}
 
 /* Playing field is divided into the 4 pages. Player (Blob) is supposed to
  * move between the four lanes, and obstacles are supposed to appear in any

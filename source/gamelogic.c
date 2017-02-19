@@ -112,18 +112,7 @@ void game_over() {
 
     //display something on game over
 
-    //display_gameover();
-    int i;
-    for (i = 0; i < 128; i++) {
-        field_page0[127] = 0;
-        field_page1[127] = 0;
-        field_page2[127] = 0;
-        field_page3[127] = 0;
-        scroll_playingfield();
-        display_playing_field();
-        delay(5);
-    }
-
+    display_gameover();
 
     while(1); //placeholder
     //optional: save highscores, display highscores

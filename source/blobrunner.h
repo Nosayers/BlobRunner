@@ -62,6 +62,11 @@ extern uint8_t field_page3[128];
 extern uint8_t* field_pages[4];
 extern uint8_t blob[6];
 
+/* Fonts
+ * fonts.h
+ */
+extern const unsigned char hunter_font[96][8]; 
+
 /* Levels
  * levels.c
  */
