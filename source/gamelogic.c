@@ -25,7 +25,7 @@ int* block_counters[4] = {
                             &block_count_lane0, &block_count_lane1,
                             &block_count_lane2, &block_count_lane3,
                             };
-int blob_lane = 0; //current player position (which lane is it in)
+int blob_lane = 2; //current player position (which lane is it in)
 int proximity_counter = 0; //for generate_obstacles, make sure dont send obstacles too close for player to navigate in between. If > 0, prevents obstaclesending
 int new_block_counter = 0; //for generates_obstacles, make sure we send a new block atleast every MAX_SPACE_BETWEEN_BLOCKS
 
@@ -275,11 +275,24 @@ void page_scroll(int pagenr) {
     }
 }
 
-
+/* This is done and shown at start of game
+ */
 void start_screen() {
 
-    //display something on startup
-
+    char* up = "BTN3 UP";
+    char* down = "BTN2 DOWN";
+    center_string(up, 0);
+    center_string(down,3);
+    display_playing_field();
+    delay(700);
+    
+    int i;
+    for (i = 0; i < 130; i++) {
+        scroll_playingfield();
+        display_playing_field();
+        delay(10);
+    }
+    display_clear();
 }
 
 /* Speed set to higher number means slower speed

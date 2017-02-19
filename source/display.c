@@ -131,10 +131,51 @@ void display_clear(void) {
     }
 } 
 
+/* Puts a string in the center 
+ */
+void center_string(char* str, int page) {
+
+    char* pnt = str;
+    int col;
+    int strlen = 0;
+    
+    //count str length
+    while (*pnt != '\0') {
+        strlen++;
+        pnt++;
+    }
+
+    //print str to screen (note; needs a screen update to be shown aswell)
+    col = (128 - strlen*6) / 2;
+    pnt = str;
+    while (*pnt != '\0') {
+        put_huntchar(*pnt, page, col);
+        col += 10;
+        pnt++;
+    }
+}
+
+/* Puts a character with font HUNTER somewhere
+ */
+void put_huntchar(char ch, int page, int col) {
+
+    uint8_t* lane = field_pages[page];
+    int huntnum = ((int) ch) - 32; //finds the right character in the font array
+    int i;
+    int k = 0;
+    for (i = col; i < (col + 8); i++) {
+        lane[i] = hunter_font[huntnum][k++];
+    }
+}
+
+/* This happens to screen on gameover
+ */
 void display_gameover(void) {
     int ipage;
     int icolumn;
+    char* str = "GAME OVER";
 
+    //scroll and clear playing field
     int i;
     for (i = 0; i < 128; i++) {
         field_page0[127] = 0;
@@ -146,41 +187,7 @@ void display_gameover(void) {
         delay(5);
     }
 
-    int k;
-    for (i = 0; i < 128; i++) {
-        switch (i) {
-            case 24:
-                for (k = 0; k < 8; k++) {
-                    field_page0[i+k] = hunter_font[39][k];
-                }
-                i += 8;
-                break;
-            case 34:
-                for (k = 0; k < 8; k++) {
-                    field_page0[i+k] = hunter_font[33][k];
-                }
-                i += 8;
-                break;
-
-            case 44:
-                for (k = 0; k < 8; k++) {
-                    field_page0[i+k] = hunter_font[45][k];
-                }
-                i += 8;
-                break;
-
-            case 54:
-                for (k = 0; k < 8; k++) {
-                    field_page0[i+k] = hunter_font[37][k];
-                }
-                i += 8;
-                break;
-            
-            default:
-                field_page0[i] = 0;
-                break;
-        }
-    } 
+    center_string(str, 1);
     display_playing_field();
 }
 
@@ -273,4 +280,3 @@ void fill_pix(int pagenumber, int column) {
     for (cnt = column*8; cnt < (column*8 + 8); cnt++)
         page[cnt] = 255;
 }
-

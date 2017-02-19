@@ -22,7 +22,9 @@ int main(void) {
     /*Setup Buttons I/O and the interrupts
      * connected to them*/
     button_init();
-   
+    
+    start_screen();
+
     /* Main loop */
     while (1) {
         display_playing_field(); //update field
@@ -30,7 +32,6 @@ int main(void) {
         clock_check(); //check if game should tick forward or not
         write_blob();  //write blob to screen
     }
-
     return 0;
 }
 

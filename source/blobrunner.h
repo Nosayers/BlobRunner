@@ -26,6 +26,9 @@ void display_clear(void);
 void enable_scrolling(void);
 void fill_pix(int pagenumber, int x); 
 void fill_col(int pagenumber, int column);
+void put_huntchar(char ch, int page, int col);
+void center_string(char* str, int page);
+void display_gameover(void);
 
 /* Game logic functions
  * gamelogic.c
