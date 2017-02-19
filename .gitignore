@@ -8,3 +8,4 @@ res/
 *.elf
 *.hex
 *.pdf
+$*

@@ -131,6 +131,23 @@ void display_clear(void) {
     }
 } 
 
+void display_gameover(void) {
+    int ipage;
+    int icolumn;
+
+    for (ipage = 0; ipage < 4; ipage++) {
+        PORTFCLR = 0x10;
+        spi2putbyte(0x22);      //setpage
+        spi2putbyte(ipage);
+        spi2putbyte(0x0);       //set lowest nib
+        spi2putbyte(0x10);      //set highest nib
+        PORTFSET = 0x10;        //data mode
+    	
+        display_putbuffer(128, clear); //send one page of 0s to buffer
+        delay(300);
+    }
+} 
+
 /* Playing field is divided into the 4 pages. Player (Blob) is supposed to
  * move between the four lanes, and obstacles are supposed to appear in any
  * of the four lanes. So the playing field is effectively divided into 4 lanes

@@ -17,18 +17,18 @@ int main(void) {
     /*Initialize display*/
     display_hardware_init();
     display_controller_init();
-    display_clear();
+    display_playing_field(); //clears display (used to be display_clear, but field is empty already)
 
     /*Setup Buttons I/O and the interrupts
      * connected to them*/
     button_init();
    
-    //main loop
+    /* Main loop */
     while (1) {
+        display_playing_field(); //update field
         remove_blob(); //otherwise our blob sends a trail after it
         clock_check(); //check if game should tick forward or not
         write_blob();  //write blob to screen
-        display_playing_field(); //update field
     }
 
     return 0;

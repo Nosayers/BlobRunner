@@ -9,7 +9,7 @@
 
 /* Game options. Change to make game more difficult, easier, etc */
 #define MAX_SPACE_BETWEEN_BLOCKS 14
-#define MIN_SPACE_BETWEEN_BLOCKS 4
+#define MIN_SPACE_BETWEEN_BLOCKS 6
 #define OBSTACLE_BLOCK_WIDTH 7
 #define STARTING_GAME_SPEED 5
 
@@ -112,8 +112,18 @@ void game_over() {
 
     //display something on game over
 
+    //display_gameover();
+    int i;
+    for (i = 0; i < 128; i++) {
+        field_page0[127] = 0;
+        field_page1[127] = 0;
+        field_page2[127] = 0;
+        field_page3[127] = 0;
+        scroll_playingfield();
+        display_playing_field();
+        delay(5);
+    }
 
-    display_playing_field(); //otherwise it sometimes looks like we didnt actually lose
 
     while(1); //placeholder
     //optional: save highscores, display highscores
@@ -196,7 +206,6 @@ void send_block(int lane) {
 void game_clock_tick() {
 
     scroll_playingfield();
-    display_playing_field();
     
     /* For manual level designs (currently theres only a level1) */
     //current level being played
