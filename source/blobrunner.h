@@ -23,12 +23,13 @@ uint8_t spi2putbyte(uint8_t bytetowrite);
 void display_playing_field(void);
 void ready_page_for_input(int page);
 void display_clear(void);
-void enable_scrolling(void);
-void fill_pix(int pagenumber, int x); 
 void fill_col(int pagenumber, int column);
 void put_huntchar(char ch, int page, int col);
 void center_string(char* str, int page);
 void display_gameover(void);
+void display_startscreen(void);
+//void enable_scrolling(void);
+//void fill_pix(int pagenumber, int x); 
 
 /* Game logic functions
  * gamelogic.c
@@ -42,10 +43,10 @@ void page_scroll(int pagenr);
 void scroll_playingfield(void);
 void generate_obstacles(void);
 void move_player(int dir);
-void start_screen(void);
 void game_over(void);
 void set_speed(int speed);
 void button_interrupt(void);
+extern int score_counter; //used in display_gameover
 
 /*  Helper assembly functions
  *  assembler.S
@@ -53,7 +54,7 @@ void button_interrupt(void);
 void delay(int);    //insert milliseconds
 void enable_interrupts(void);
 
-/* Declarations for graphic data units, these are generally sent into the
+/* Graphic data units, these are generally sent into the
  * display buffer
  * graphicsdata.c
  */

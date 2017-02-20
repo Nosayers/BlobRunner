@@ -5,6 +5,8 @@
  * jared.geek.nz/2014/jan/custom-fonts-for-microcontrollers
  *
  * created by Jared Sanson
+ *
+ * slightly modifed by blobrunner auther to fit in with program
  */
 
 void *stdin, *stdout, *stderr;

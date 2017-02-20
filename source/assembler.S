@@ -12,6 +12,7 @@ enable_interrupts:
     jr  $ra
     nop
 
+# delay(int ms)
 .global delay
 delay:
 	li $t5, 0xaa67	#CONSTANT:  used in for loop to get the delay. It was requested easy to change, so put at top

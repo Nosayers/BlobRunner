@@ -1,13 +1,16 @@
+/* Written 2017 by Max Körlinge (c) */
+
+#include <stdint.h>  //needed to understand uint8 
+#include "blobrunner.h" 
 
 /* graphicsdata.c 
  *
  * Contains data structures that are written to the OLED graphic display
  * By game design choice the data is divided into the pages they will be written
  * to (total of 4 pages).
+ * These pages are writting to screen by display_playing_field();
+ * and they are constantly scrolled by scroll_playingfield();
  */
-
-#include <stdint.h>  //needed to understand uint8 
-#include "blobrunner.h" 
 
 void *stdin, *stdout, *stderr;
 

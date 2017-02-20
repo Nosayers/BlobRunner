@@ -4,6 +4,9 @@ Copyright (c) 2015, F Lundevall
 If you're a student, and you have modified one or more files,
 you must add your name here.
 
+Max Körlinge 2017, changed vectors.S to call my function button_interrupt
+as interrupt routine.
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:

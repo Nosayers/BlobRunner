@@ -1,10 +1,15 @@
+/* Written 2017 by Max Körlinge (c) */
+
 #include <pic32mx.h>
 #include <stdint.h>
 #include "blobrunner.h"
 
 /* KNOWN ISSUES:
- * The microcontrollers push buttons sometimes double click unintentionally,
+ * - The microcontrollers push buttons sometimes double click unintentionally,
  * screwing us over.
+ * - When hitting an obstacle from below or above (= not from the front), the display messes up the graphics on the GAME OVER screen.........
+ *   Tried many ways to solve this, like writing different amounts of 0s to buffer before the G-O screen, and turning off/on the screen. Nothing solved it yet.
+ * - Rare bug: Blob hits "gameover" even without being near an obstacle
  */
 
 void *stdin, *stdout, *stderr;  //needed to workaround a mcb32 env bug with using stdlib
@@ -17,14 +22,14 @@ int main(void) {
     /*Initialize display*/
     display_hardware_init();
     display_controller_init();
-    display_playing_field(); //clears display (used to be display_clear, but field is empty already)
+    display_playing_field(); //clears display at start
+
+    display_startscreen();
 
     /*Setup Buttons I/O and the interrupts
      * connected to them*/
     button_init();
     
-    start_screen();
-
     /* Main loop */
     while (1) {
         display_playing_field(); //update field

@@ -1,3 +1,5 @@
+/* Written 2017 by Max Körlinge (c) */
+
 #include <stdint.h>
 #include <pic32mx.h>        //mcb32 environment
 #include "blobrunner.h"   //headers for this project
@@ -12,10 +14,8 @@ void *stdin, *stdout, *stderr;
  * were written based on the pseudo code outlined in the chipkit basic io shield
  * reference manual found at
  * reference.digilentinc.com/_media/chipkit_shield_basic_io_shield:chipkit_basic_io_shield_rm.pdf
- * and with some glances at the code (but none directly copied) created by Axel Isaksson and F Lundevall for
- * lab 3 in the course Computer hardware engineering at the Royal Institute of Technology
- * in Stockholm.
- * OBS!!!!!!! include COPYING och header??
+ * and with some help from looking at the code created by Axel Isaksson and F Lundevall for lab 3 in the course Computer hardware engineering at the Royal Institute of Technology
+ * in Stockholm. 
  */
 
 /* HARDWARE INITIALIZATION */
@@ -50,7 +50,6 @@ void display_controller_init (void) {
                             // apply power to vdd - RF6
                             // OBS power on = bit is set to 0 (!)
     delay(1000);
-
                             // send display off command
     spi2putbyte(0xAE);      //send AE which is command to turn off to display
 
@@ -87,22 +86,6 @@ void display_controller_init (void) {
     /* END INITIATION SEQUENCE */
 }
 
-/* DISPLAY POWER OFF SEQUENCE */ 
-void display_poweroff (void) {
-
-    // send display off
-    spi2putbyte(0xAE);
-    delay(100);
-
-    // power off VBAT
-    PORTFSET = 0x0020;
-    delay(1000);
-
-    // power off VDD
-    PORTFSET = 0x0040; 
-    delay(1000);
-}
-
 /* DISPLAY MEMORY
  * display memory is organized as four pages of 128 bytes each. Each memory page
  * corresponds to an 8-pixel-high column on the display. The LSB in display byte is the top most pixel, MSB is the bottom most pixel. (on one page).
@@ -112,29 +95,46 @@ void display_poweroff (void) {
  *  is a page, where leftmost pixel - is the first byte, and the top most pixel in the first byte is the LSB
  */
 
-/* THIS FILLS BUFFER WITH 0, EFFECTIVELY CLEARING SCREEN
- * needed at startup, otherwise old data in buffer is displayed and messes things up
+/* Playing field is divided into the 4 pages. Player (Blob) is supposed to
+ * move between the four lanes, and obstacles are supposed to appear in any
+ * of the four lanes. So the playing field is effectively divided into 4 lanes
+ * and so the graphics data is separated into the four different pages, to
+ * simplify writing obstacles or the Blob to them, without spilling over into
+ * other lanes. This function updates all pages/lanes.
  */
-void display_clear(void) {
-    int ipage;
-    int icolumn;
+void display_playing_field(void) {
+	ready_page_for_input(0);
+        display_putbuffer(128, field_page0);
+	ready_page_for_input(1);
+        display_putbuffer(128, field_page1);
+	ready_page_for_input(2);
+        display_putbuffer(128, field_page2);
+	ready_page_for_input(3);
+        display_putbuffer(128, field_page3);
+}
 
-    for (ipage = 0; ipage < 4; ipage++) {
-        PORTFCLR = 0x10;
-        spi2putbyte(0x22);      //setpage
-        spi2putbyte(ipage);
-        spi2putbyte(0x0);       //set lowest nib
-        spi2putbyte(0x10);      //set highest nib
-        PORTFSET = 0x10;        //data mode
-    	
-        display_putbuffer(128, clear); //send one page of 0s to buffer
-    }
-} 
+/* Helper function for display_playing_field (and others?)
+ */
+void ready_page_for_input(int page) {
+	PORTFCLR = 0x10;
+	spi2putbyte(0x22);  //setpage
+	spi2putbyte(page);
+	spi2putbyte(0x00);  //set lowest nib
+	spi2putbyte(0x10);  //set highest nib
+	PORTFSET = 0x10;    //data mode
+}
 
-/* Puts a string in the center 
+/* Fill column
+ * fills column (127 = far right, 0 = far left) on a page
+ */
+void fill_col(int pagenumber, int column) {
+    uint8_t* page = field_pages[pagenumber];
+    page[column] = 255;
+}
+
+/* Puts a string in the center of a page
  */
 void center_string(char* str, int page) {
-
     char* pnt = str;
     int col;
     int strlen = 0;
@@ -168,13 +168,48 @@ void put_huntchar(char ch, int page, int col) {
     }
 }
 
+/* This is done and shown at start of game
+ * Shows instructions for Btns to use, and then scrolls it away
+ */
+void display_startscreen() {
+
+    char* up = "BTN3 UP";
+    char* down = "BTN2 DOWN";
+    center_string(up, 0);
+    center_string(down,3);
+    display_playing_field();
+    delay(700);
+    
+    int i;
+    for (i = 0; i < 130; i++) {
+        scroll_playingfield();
+        display_playing_field();
+        delay(10);
+    }
+    display_clear();
+}
+
 /* This happens to screen on gameover
+ * Shows GAME OVER and the achieved score
+ * TODO: This screen is bugged by being offset in a weird way, when
+ * player hits an obstacle from below or above.
  */
 void display_gameover(void) {
     int ipage;
     int icolumn;
-    char* str = "GAME OVER";
+    char* go_str = "GAME OVER";
+    char* score_str = "score:";
+    //count number of digits in score
+    int score = score_counter;
+    int nrdigs = 0;
+    while(score) {
+        score /= 10;
+        nrdigs++;
+    }
+    char* scr_str[nrdigs+1]; //dont forget \0
+    sprintf(scr_str, "%d", score_counter);
 
+    
     //scroll and clear playing field
     int i;
     for (i = 0; i < 128; i++) {
@@ -187,50 +222,50 @@ void display_gameover(void) {
         delay(5);
     }
 
-    center_string(str, 1);
+    display_clear();
+    display_playing_field();
+    delay(300);
+
+    /* Had some display bugs when hitting obstacle from below or above
+     * at high speeds, where the GAME OVER message was weirdly offset.
+     * This tries to solve it by sleeping and reactivating display
+     * Final note: None of it seems to make much difference
+     */
+
+    /* delay(10); */
+    /* int k; */
+    /* for (k = 0; k < 4; k++) { */
+    /*     PORTFCLR = 0x10; */
+    /*     spi2putbyte(0x22); */
+    /*     spi2putbyte(k); */
+    /*     PORTFSET = 0x10; */
+    /*     for (i = 0; i < 900; i++) { */
+    /*         spi2putbyte(0x0); */
+    /*     } */
+    /* } */
+
+    /* for (i = 0; i < 300; i++) { */
+    /*     scroll_playingfield(); */
+    /*     display_playing_field(); */
+    /* } */
+    /* delay(10); */
+
+    center_string(go_str, 0);
+    center_string(score_str, 2);
+    center_string(scr_str,3);
     display_playing_field();
 }
 
-/* Playing field is divided into the 4 pages. Player (Blob) is supposed to
- * move between the four lanes, and obstacles are supposed to appear in any
- * of the four lanes. So the playing field is effectively divided into 4 lanes
- * and so the graphics data is separated into the four different pages, to
- * simplify writing obstacles or the Blob to them, without spilling over into
- * other lanes. This function updates all pages/lanes.
- */
-void display_playing_field(void) {
-	ready_page_for_input(0);
-        display_putbuffer(128, field_page0);
-	ready_page_for_input(1);
-        display_putbuffer(128, field_page1);
-	ready_page_for_input(2);
-        display_putbuffer(128, field_page2);
-	ready_page_for_input(3);
-        display_putbuffer(128, field_page3);
-}
-
-/* Helper function for display_playing_field (and others?)
- */
-void ready_page_for_input(int page) {
-	PORTFCLR = 0x10;
-	spi2putbyte(0x22);  //setpage
-	spi2putbyte(page);
-	spi2putbyte(0x00);  //set lowest nib
-	spi2putbyte(0x10);  //set highest nib
-	PORTFSET = 0x10;    //data mode
-}
-
-/* WRITE DATA TO DISPLAY PANEL, "PUT BUFFER" */
+/* Write data to display panel, "put buffer" */
 void display_putbuffer(int number_bytes, uint8_t* buffer_to_send) {
     int i;
-    /*Write/read the data*/
     for (i = 0; i < number_bytes; i++) {
         spi2putbyte(*buffer_to_send);       //send first byte in buffer, this function also waits to receive next byte
         buffer_to_send++;                   //increment pointer
     }
 }
 
-/* SEND DATA TO THE DISPLAY */
+/* Send data to the display */
 uint8_t spi2putbyte (uint8_t bytetowrite) {
     uint8_t bytetoread;
     /*Wait for transmitter to be ready*/
@@ -245,38 +280,48 @@ uint8_t spi2putbyte (uint8_t bytetowrite) {
     return bytetoread;
 }
 
-/* NOT CURRENTLY USED. CHOSE OTHER WAY OF SCROLLING FIELD */
-/* ENABLE HORIZONTAL SCROLLING
- * (send 2E to deactivate. must be deactivated before activating)
- * might not want to use it for this project (use other way for game flow)
- * Followed example in SSD1306 controller manual
+/* This fills buffer with 0, effectively clearing screen
  */
-void enable_scrolling (void) {
-    PORTFCLR = 0x10;
-    spi2putbyte(0x29);
-    spi2putbyte(0x00);
-    spi2putbyte(0x00);
-    spi2putbyte(0x00);
-    spi2putbyte(0x07);
-    spi2putbyte(0x00);
-    spi2putbyte(0x2F);
-}
+void display_clear(void) {
+    int ipage;
+    int icolumn;
 
-/* Fill column
- * fills column (127 = far right, 0 = far left) on a page
- */
-void fill_col(int pagenumber, int column) {
-    uint8_t* page = field_pages[pagenumber];
-    page[column] = 255;
-}
+    for (ipage = 0; ipage < 4; ipage++) {
+        PORTFCLR = 0x10;
+        spi2putbyte(0x22);      //setpage
+        spi2putbyte(ipage);
+        spi2putbyte(0x0);       //set lowest nib
+        spi2putbyte(0x10);      //set highest nib
+        PORTFSET = 0x10;        //data mode
+    	
+        display_putbuffer(128, clear); //send one page of 0s to buffer
+    }
+} 
 
-// NOT CURRENTLY USED
-/* Fill a rectangle on the specified page spec column
- * max column = 15 (right edge of screen) 
- */
-void fill_pix(int pagenumber, int column) {
-    uint8_t* page = field_pages[pagenumber];
-    int cnt;
-    for (cnt = column*8; cnt < (column*8 + 8); cnt++)
-        page[cnt] = 255;
-}
+/* /1* NOT CURRENTLY USED. CHOSE OTHER WAY OF SCROLLING FIELD *1/ */
+/* /1* Enable horizontal scrolling */
+/*  * (send 2e to deactivate. must be deactivated before activating) */
+/*  * might not want to use it for this project (use other way for game flow) */
+/*  * followed example in ssd1306 controller manual */
+/*  *1/ */
+/* void enable_scrolling (void) { */
+/*     PORTFCLR = 0x10; */
+/*     spi2putbyte(0x29); */
+/*     spi2putbyte(0x00); */
+/*     spi2putbyte(0x00); */
+/*     spi2putbyte(0x00); */
+/*     spi2putbyte(0x07); */
+/*     spi2putbyte(0x00); */
+/*     spi2putbyte(0x2F); */
+/* } */
+
+/* // NOT CURRENTLY USED */
+/* /1* Fill a rectangle on the specified page spec column */
+/*  * max column = 15 (right edge of screen) */ 
+/*  *1/ */
+/* void fill_pix(int pagenumber, int column) { */
+/*     uint8_t* page = field_pages[pagenumber]; */
+/*     int cnt; */
+/*     for (cnt = column*8; cnt < (column*8 + 8); cnt++) */
+/*         page[cnt] = 255; */
+/* } */

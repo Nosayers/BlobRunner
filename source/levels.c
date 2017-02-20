@@ -1,9 +1,17 @@
+/* Written 2017 by Max Körlinge (c) */
+
 #include <stdint.h>
 #include "blobrunner.h"
 
+/* This file is included in case one should wish to design levels oneself,
+ * instead of the random generator. By default this is not used.
+ * To play this level, uncomment "level_one();" in game_clock_tick, and
+ * comment out the random obstacle generation.
+ */
+
 void *stdin, *stdout, *stderr;
 
-/* Level one design (v0.1)
+/* Level example
  */
 int level_one_counter = 0;
 void level_one(void) {
