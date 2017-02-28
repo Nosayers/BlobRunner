@@ -254,6 +254,7 @@ void display_gameover(void) {
     center_string(score_str, 2);
     center_string(scr_str,3);
     display_playing_field();
+    return;
 }
 
 /* Write data to display panel, "put buffer" */
