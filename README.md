@@ -6,6 +6,11 @@ A game for microcontroller ChipKIT Uno32 development board with ChipKIT Basic I/
 
 Blobrunner is, as the name suggests, a game where you are playing a blob on the screen, and you are supposed to run for as long as possible without running into one of the randomly generated obstacles that appear on the screen. The game becomes more difficult as speed increases with time.
 
+### Requirements
+
+* The device (ChipKIT Uno32 development board with ChipKIT Basic I/O shield), to run the entire project.
+* MCB32 toolchain, for building the code onto the device: https://github.com/is1200-example-projects/mcb32tools/releases/
+
 ### Instructions
 
 * Btn 3 - Move blob UP
