@@ -157,7 +157,7 @@ void write_blob() {
     int i;
     for (i = 0; i < 6; i++) {
         if (lane[BLOB_X_AXIS+i] != 0) { //game over if hit obstacle
-            lane[BLOB_X_AXIS+i] = blob[i]; 
+            //lane[BLOB_X_AXIS+i] = blob[i]; 
             delay(500);
             game_over();
         }

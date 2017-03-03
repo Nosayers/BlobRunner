@@ -19,7 +19,7 @@ The program is written in C (small part in Assembler) for the MIPS processor pre
 
 ### Code reuse
 
-Files stubs.c and vectors.S are reused from a course lab, see file COPYING.
+Files stubs.c and vectors.S are reused from a course lab, see file COPYING. The Makefile was provided by the school as well.
 
 ### Known bugs
 
